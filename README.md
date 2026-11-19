@@ -23,7 +23,7 @@ npm install
 npm run dev
 ```
 
-The frontend expects the agreed API envelope (`{ success, data, error?, meta? }`). Set `VITE_API_BASE_URL` to the backend API base URL when it is available; it defaults to `/api`. YouTube video IDs and embed URLs are supplied by the backend.
+The frontend expects the agreed API envelope (`{ success, data, error?, meta? }`). Development requests default to `/api`; production builds default to `https://vehant-tech.onrender.com/api`. Override with `VITE_API_BASE_URL` if the backend URL changes. YouTube video IDs and embed URLs are supplied by the backend.
 
 ## Run the backend
 
@@ -40,6 +40,8 @@ npm run dev
 The backend runs directly on Node.js and does not require a TypeScript compilation step. Request query/body and environment values are validated by the backend's JavaScript validation helpers.
 
 The API listens on port `4000` by default. It upserts exactly nine camera records on startup. The Vite development server proxies `/api` and `/socket.io` to `http://localhost:4000`.
+
+For Vercel + Render deployments, set Render's `CLIENT_ORIGIN` to the exact Vercel site origin (for example, `https://your-app.vercel.app`; no trailing path). Separate multiple allowed origins with commas. The frontend defaults API and Socket.IO traffic to `https://vehant-tech.onrender.com`; if overriding `VITE_API_BASE_URL` or `VITE_SOCKET_URL` in Vercel, redeploy the frontend because Vite embeds these values at build time. YouTube feeds are loaded from `/api/traffic-videos`, so the backend origin and CORS setting must be correct for them to appear.
 
 There are no committed/default admin credentials. For local development, choose an admin email and password and set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in the backend's untracked `.env`; configure a private random `JWT_SECRET` of at least 32 characters. Use a unique development password (12–72 UTF-8 bytes); never copy production credentials into README, source, or frontend files. The configured password is stored only as a bcrypt hash. The seeded account is created/updated at backend startup; do not use development credentials in production. The login endpoint returns an eight-hour JWT, kept in browser session storage and sent as a bearer token for protected calls.
 

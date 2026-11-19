@@ -3,7 +3,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { io } from 'socket.io-client';
 import { TrafficSocketContext } from './trafficSocketContext';
 function createTrafficSocket() {
-    const socketUrl = import.meta.env.VITE_SOCKET_URL || undefined;
+    const socketUrl =
+        import.meta.env.VITE_SOCKET_URL ||
+        (import.meta.env.PROD ? 'https://vehant-tech.onrender.com' : undefined);
     return io(socketUrl, {
         path: '/socket.io',
         autoConnect: false,

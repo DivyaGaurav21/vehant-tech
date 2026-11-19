@@ -1,6 +1,9 @@
 import axios from "axios";
+const defaultApiBaseUrl = import.meta.env.PROD
+  ? "https://vehant-tech.onrender.com/api"
+  : "/api";
 export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? "/api",
+  baseURL: import.meta.env.VITE_API_BASE_URL || defaultApiBaseUrl,
   timeout: 8000,
   headers: { Accept: "application/json" },
 });

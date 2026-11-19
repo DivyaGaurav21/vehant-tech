@@ -26,10 +26,31 @@ if (!["development", "test", "production"].includes(nodeEnv))
 const mongoUri = process.env.MONGODB_URI;
 if (!mongoUri) throw new Error("MONGODB_URI is required");
 const clientOrigin = process.env.CLIENT_ORIGIN || "http://localhost:5173";
-try {
-  new URL(clientOrigin);
-} catch {
-  throw new Error("CLIENT_ORIGIN must be a valid URL");
+const configuredClientOrigins = clientOrigin
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean)
+  .map((origin) => {
+    let parsedOrigin;
+    try {
+      parsedOrigin = new URL(origin);
+    } catch {
+      throw new Error("CLIENT_ORIGIN must contain valid comma-separated URLs");
+    }
+    if (
+      !["http:", "https:"].includes(parsedOrigin.protocol) ||
+      parsedOrigin.pathname !== "/" ||
+      parsedOrigin.search ||
+      parsedOrigin.hash ||
+      parsedOrigin.username ||
+      parsedOrigin.password
+    ) {
+      throw new Error("CLIENT_ORIGIN must contain HTTP(S) origins without paths");
+    }
+    return parsedOrigin.origin;
+  });
+if (configuredClientOrigins.length === 0) {
+  throw new Error("CLIENT_ORIGIN must contain at least one valid URL");
 }
 const jwtSecret = optionalEnv("JWT_SECRET");
 const adminEmail = optionalEnv("ADMIN_EMAIL");
@@ -76,12 +97,12 @@ export const clientOrigins =
   env.NODE_ENV === "development"
     ? [
         ...new Set([
-          env.CLIENT_ORIGIN,
+          ...configuredClientOrigins,
           "http://localhost:5173",
           "http://127.0.0.1:5173",
         ]),
       ]
-    : [env.CLIENT_ORIGIN];
+    : configuredClientOrigins;
 if (Boolean(env.ADMIN_EMAIL) !== Boolean(env.ADMIN_PASSWORD)) {
   throw new Error(
     "ADMIN_EMAIL and ADMIN_PASSWORD must both be configured to seed the admin account",
