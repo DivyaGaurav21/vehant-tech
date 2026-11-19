@@ -7,11 +7,11 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:4000',
+        target: 'https://vehant-tech.onrender.com/',
         changeOrigin: true,
       },
       '/socket.io': {
-        target: 'http://localhost:4000',
+        target: 'https://vehant-tech.onrender.com/',
         changeOrigin: true,
         ws: true,
       },
